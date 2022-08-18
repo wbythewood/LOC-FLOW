@@ -6,6 +6,7 @@ Earthquake Location Workflow
 LOC-FLOW is an “hands-free” earthquake location workflow to process continuous seismic records: from raw waveforms to well located earthquakes with magnitude calculations. The package assembles several popular routines for sequential earthquake location refinements, suitable for catalog building ranging from local to regional scales. DOI:10.5281/zenodo.5875084
 
 The LOC-FLOW is released and maintained at https://github.com/Dal-mzhang/LOC-FLOW.
+This version of LOC-FLOW is at https://github.com/wbythewood/LOC-FLOW
 
 How to start? bash run_all.sh. 
 Detailed step-by-step explanations can be found in the CookBook and corresponding scripts.

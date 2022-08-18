@@ -1,0 +1,61 @@
+A quick overview of the codes in this package
+
+Modified by William Hawley, aug 2022
+wbythewood@gmail.com
+
+#### INSTALL
+1. cd to src directory, run
+	> python software_download.py
+This downloads FDTCC, GrowClust, MatchLocate2, Phasenet, REAL. I did not have to make any changes to this code.
+
+2. download Hypoinverse from https://www.usgs.gov/software/hypoinverse-earthquake-location. 
+This downloads hyp1.40.tar. Untar it. 
+
+3. I don't have wget, so I had to download hypodd separately: http://www.ldeo.columbia.edu/~felixw/HYPODD/HYPODD_1.3.tar.gz
+This downloads hypodd1.3.tar. Untar it. 
+
+4. Go into each of these directories to compile the codes. If you don't have gcc-9, download it. I used
+	> brew install gcc@9
+I also had to add the following to my .zshrc file, though I don't recall exactly why:
+export SDKROOT=`xcrun --show-sdk-path`
+
+	FDTCC/src
+		make had no issues with the above modifications.
+
+	GrowClust/SRC
+		make had no issues here
+
+	HYPODD/src
+		I don't have g77 or f77, so have replaced them with gfortran in the following places:
+		hista2ddsta/Makefile
+		hypoDD/Makefile
+		ncsn2pha/Makefile
+		ph2dt/Makefile
+
+		In each of these Makefiles, I've commented out other FCs, and added:
+			FC = gfortran
+		This generates lots of warnings, but no errors when you go back to HYPODD/src and make.
+
+	MatchLocate2/src
+		There were issues with compiling. Solved by changing gcc-10 to gcc-9 in line 3 of Makefile
+
+	Phasenet is all python, no compiling here.
+
+	REAL/SRC has multiple subfolders:
+		REAL
+			change line 2 of makefiule from gcc-10 to gcc-9
+		VELEST
+			make had no issues here
+		pick2real
+			make had no issues here
+
+	hyp1.40/source
+		line 16, comment out the cp command
+		I had to replace every g77 with gfortran. This is easy with vim:
+			:%s/g77/gfortran/g
+		With these changes, everything compiles. 
+
+5. back to the upper src directory, run
+	> bash run_install.sh
+
+6. change directory cd ../bin, pwd, then copy this directory and add it to your path in ~/.zshrc
