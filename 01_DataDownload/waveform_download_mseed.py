@@ -9,7 +9,9 @@ import math
 import numpy as np
 import pandas as pd
 import os
+import sys
 import shutil
+import params
 from time import time
 from datetime import datetime, timedelta, timezone
 from obspy import UTCDateTime, read, read_inventory, read_events
@@ -18,31 +20,33 @@ from obspy.clients.fdsn.mass_downloader import (
     CircularDomain,
     Restrictions,
     MassDownloader,
+    RectangularDomain
 )
 
-# Date and time 
-year0 = 2016 # year
-mon0 = 10 # month
-day0 = 14 #day
-nday = 1 # number of days
-tb = 0 # beginning time
-te = 3000 # ending time, for quick test
+#client = Client(params.webservice)
+# Date and time -- wbh modify to pull from params file
+year0 = params.year # year
+mon0 = params.month # month
+day0 = params.day #day
+nday = params.nday # number of days
+tb = params.tstart # beginning time
+te = params.tend # ending time, for quick test
 #te = 86400 # ending time, the whole day
-samplingrate = 100 # resampling rate in Hz
+samplingrate = params.sampleRate # resampling rate in Hz
 
 # Station region
-latref = 42.75 # reference lat.
-lonref = 13.25 # reference lon.
-maxradius = 50 # maximum radius in km.
-network= "IV,YR" # network
-channels = ["HH?","EH?"] # station channel priority, 
+latref = params.LatCirc # reference lat.
+lonref = params.LonCirc # reference lon.
+maxradius = params.MaxRadius # maximum radius in km.
+network = params.network # network
+channels = params.channels #["HH?","EH?"] # station channel priority, 
 # If not specified, default channel_priorities: 
 #"HH[ZNE12]", "BH[ZNE12]","MH[ZNE12]", "EH[ZNE12]", "LH[ZNE12]", "HL[ZNE12]"
 #"BL[ZNE12]", "ML[ZNE12]", "EL[ZNE12]", "LL[ZNE12]", "SH[ZNE12]"),
 #https://ds.iris.edu/ds/nodes/dmc/data/formats/seed-channel-naming/
 
 # Define the data directories
-data_dir = os.getcwd()
+data_dir = params.DataDir #os.getcwd()
 raw_waveform_dir = os.path.join(data_dir, "waveform_mseed")
 processed_waveform_dir = os.path.join(data_dir, "waveform_sac")
 
@@ -100,9 +104,16 @@ for i in range(nday):
     starttime= origins + timedelta(seconds=tb)
     endtime = origins + timedelta(seconds=te)
     
-    domain = CircularDomain(
-        latitude=latref, longitude=lonref, minradius=0.0, maxradius=maxradius/111.19
-    )
+    if params.AreaType == "C":
+        domain = CircularDomain(
+            latitude=latref, longitude=lonref, minradius=params.MinRadius, maxradius=maxradius/111.19
+        )
+    elif params.AreaType == "R":
+        domain = RectangularDomain(minlatitude=params.MinLat, maxlatitude=params.MaxLat, minlongitude=params.MinLon, maxlongitude=params.MaxLon)
+    else:
+        print("AreaType must be either \"C\" or \"R\"; you chose: "+params.AreaType)
+        print("Please correct in your params file")
+        sys.exit()
     
     # see https://docs.obspy.org/packages/autogen/obspy.clients.fdsn.mass_downloader.html
     restrictions = Restrictions(
@@ -112,7 +123,7 @@ for i in range(nday):
         #channel="", # use all available channels if not provided
         channel_priorities=channels,
         network=network, # use all available networks if not provided
-        #station="",
+        #station="CMC",
         #location="00",
         minimum_length = 0.5,
         sanitize=False,
@@ -128,6 +139,7 @@ for i in range(nday):
 
     # Get the data (if available) and write to output file
     mdl.download(domain, restrictions, mseed_storage=eventid_dir, stationxml_storage=eventid_dir)
+    #sys.exit()
     # Remove the response, write header, rotate components
     st = read(os.path.join(eventid_dir,"*.mseed"))
     inv = read_inventory(os.path.join(eventid_dir,"*.xml"))
@@ -162,3 +174,4 @@ o.close()
 
 shutil.rmtree(raw_waveform_dir)
 os.system ("cat {} | sort -u -k 4 | uniq > uniq_st.dat && mv uniq_st.dat {}".format (fname, fname)) # remove duplicated stations
+shutil.move(fname, data_dir)

@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import os
 import shutil
+import params
 from time import time
 import obspy
 from obspy.geodetics import locations2degrees
@@ -15,24 +16,25 @@ from obspy import UTCDateTime, read, read_inventory, read_events
 from obspy.clients.fdsn import Client
 
 # Date and time 
-year0 = 2016 # year
-mon0 = 10 # month
-day0 = 14 #day
-nday = 1 # number of days
-tbeg = 0 # beginning time
+year0 = params.year # year
+mon0 = params.month # month
+day0 = params.day #day
+nday = params.nday # number of days
+tbeg = params.tstart # beginning time
          # the length will be as long as the data in waveform_sac
 
 # Station region
-latref = 42.75 # reference lat.
-lonref = 13.25 # reference lon.
-maxradius = 50 # maximum radius in km.
-threecomp = 1 # 1: use three components E/N/Z
+latref = params.LatCirc # reference lat.
+lonref = params.LonCirc # reference lon.
+maxradius = params.MaxRadius # maximum radius in km.
+threecomp = params.ThreeComp  
+              # 1: use three components E/N/Z
               # 0: use E/N/Z, E/Z, N/Z, Z
               # It is fine to use either one before the dt.cc calculation.
               # NOTE: FDTCC use ENZ only by default. 
               #       Want to use Z alone? change E and N to Z in FDTCC.c.
 
-data_dir = os.getcwd()
+data_dir = params.DataDir 
 sac_waveform_dir = os.path.join(data_dir, "waveform_sac")
 stationdir = os.path.join(data_dir,"station_all.dat")
 stationsel = os.path.join(data_dir,"station.dat")
@@ -64,9 +66,14 @@ for i in range(nday):
             tracen = os.path.join(sacid_dir,net+'.'+sta+'.'+chann)
             tracez = os.path.join(sacid_dir,net+'.'+sta+'.'+chanz)
             
-            dist = 111.19*locations2degrees(float(latref), float(lonref), float(lat), float(lon))
-            if dist > maxradius:
-                continue
+            if params.AreaType == "C":
+                dist = 111.19*locations2degrees(float(latref), float(lonref), float(lat), float(lon))
+                if dist > maxradius:
+                    continue
+            if params.AreaType == "R":
+                if params.MinLat > lat or params.MaxLat < lat or params.MinLon > lon or params.MaxLon < lon:
+                    print(lat,lon) #test
+                    continue
          
             if os.path.exists(tracee) or os.path.exists(tracen) or os.path.exists(tracez):
                 o.write('{}\n'.format(year+mon+day+'/'+net+'.'+sta+'.'+chanz[:-1]+"*"))
