@@ -70,7 +70,7 @@ for d in range(nday):
             tstart = trz.stats.starttime - UTCDateTime(int(year),int(mon),int(day)) 
 
             ofn = net+'.'+sta+'.'+'P.txt'
-            output = os.path.join(PicksDateDir,ofn) #'./'+date+net+'.'+sta+'.'+'P.txt'
+            output = os.path.join(PicksDateDir,ofn) 
 
             # Characteristic function and trigger onsets, see ObsPy website
             cft = recursive_sta_lta(trz.data, int(0.1 * df), int(2.5 * df))
