@@ -174,4 +174,7 @@ o.close()
 
 shutil.rmtree(raw_waveform_dir)
 os.system ("cat {} | sort -u -k 4 | uniq > uniq_st.dat && mv uniq_st.dat {}".format (fname, fname)) # remove duplicated stations
+MovedStaFileName = os.path.join(data_dir,fname)
+if os.path.exists(MovedStaFileName):
+    os.remove(MovedStaFileName)
 shutil.move(fname, data_dir)
