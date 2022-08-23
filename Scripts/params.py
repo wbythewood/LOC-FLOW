@@ -5,7 +5,11 @@ import os
 label = "BayArea-Test"
 BaseDir = "/Users/whawley/Research/Bangladesh/LOC-FLOW/"
 DataDir = os.path.join(BaseDir,"Data",label)
+if not os.path.exists(os.path.join(BaseDir,'Data/')): os.mkdir(os.path.join(BaseDir,'Data/'))
 if not os.path.exists(DataDir): os.mkdir(DataDir)
+PicksDir = os.path.join(BaseDir,"Picks",label)
+if not os.path.exists(os.path.join(BaseDir,'Picks/')): os.mkdir(os.path.join(BaseDir,'Picks/'))
+if not os.path.exists(PicksDir): os.mkdir(PicksDir)
 
 # time range for observations
 year = 2018
