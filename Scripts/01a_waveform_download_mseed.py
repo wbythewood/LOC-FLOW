@@ -23,6 +23,7 @@ from obspy.clients.fdsn.mass_downloader import (
     RectangularDomain
 )
 
+sys.exit()
 #client = Client(params.webservice)
 # Date and time -- wbh modify to pull from params file
 year0 = params.year # year

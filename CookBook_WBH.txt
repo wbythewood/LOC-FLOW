@@ -59,3 +59,24 @@ export SDKROOT=`xcrun --show-sdk-path`
 	> bash run_install.sh
 
 6. change directory cd ../bin, pwd, then copy this directory and add it to your path in ~/.zshrc
+
+
+#### DOWNLOAD DATA
+1. change directory cd Scripts. The only thing you ought to need to modify here is params.py. 
+   Set these parameters to what you want for your project. 
+   Change name of BaseDir to the full path that leads to /LOC-FLOW
+   The label will be used as the project name; all downloaded data will be stored in Data/label.
+   All other parameters are explained in the comments in the param file. 
+
+2. run
+	> python 01a_waveform_download_mseed.py
+This downloads the seismic data you'll use. 
+
+3. run
+	> python 02_phasenet_input.py
+This creates a station list for the following steps, as well as "prepares data inputs for PhaseNet to run."
+
+
+#### PHASE PICKER
+
+
