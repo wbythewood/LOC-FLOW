@@ -3,6 +3,8 @@ import os
 
 # introduce a parameter file, to prevent inconsistency
 label = "BayArea-Test"
+VelModelName = "mymodel.nd" # name of velocity model you will use fot association
+
 BaseDir = "/Users/whawley/Research/Bangladesh/LOC-FLOW/"
 DataDir = os.path.join(BaseDir,"Data",label)
 if not os.path.exists(os.path.join(BaseDir,'Data/')): os.mkdir(os.path.join(BaseDir,'Data/'))
@@ -10,12 +12,18 @@ if not os.path.exists(DataDir): os.mkdir(DataDir)
 PicksDir = os.path.join(BaseDir,"Picks",label)
 if not os.path.exists(os.path.join(BaseDir,'Picks/')): os.mkdir(os.path.join(BaseDir,'Picks/'))
 if not os.path.exists(PicksDir): os.mkdir(PicksDir)
+AssocDir = os.path.join(BaseDir,"Associate",label)
+if not os.path.exists(os.path.join(BaseDir,'Associate/')): os.mkdir(os.path.join(BaseDir,'Associate/'))
+if not os.path.exists(AssocDir): os.mkdir(AssocDir)
+
+VelDir = os.path.join(BaseDir,"VelocityModels")
+VelModel = os.path.join(VelDir,VelModelName)
 
 # time range for observations
 year = 2018
 month = 1 # integer month
 day = 1 # integer day
-nday = 7 # number of days to download data
+nday = 1 # number of days to download data
 tstart = 0 # in seconds
 tend = 86400 # in seconds, 86400 is full day
 
