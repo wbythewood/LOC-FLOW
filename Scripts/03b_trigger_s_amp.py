@@ -14,6 +14,11 @@ DataDir = params.DataDir
 ddir = os.path.join(DataDir,'waveform_sac/')
 stationdir = os.path.join(DataDir,'station.dat')
 
+# new picks dir to keep separate from phasenet step
+PicksDir = os.path.join(params.PicksDir,'STALTA/')
+if not os.path.exists(PicksDir): os.mkdir(PicksDir)
+
+
 year0 = params.year # year
 mon0 = params.month # mon
 day0 = params.day # day
@@ -34,7 +39,7 @@ def main():
 
         date = str(year)+str(mon)+str(day)+'/'
 
-        PicksDateDir = os.path.join(params.PicksDir,date)
+        PicksDateDir = os.path.join(PicksDir,date)
         if not os.path.exists(PicksDateDir):
             os.makedirs(PicksDateDir)
 
