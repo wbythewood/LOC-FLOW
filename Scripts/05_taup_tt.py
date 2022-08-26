@@ -2,25 +2,30 @@ import math
 import obspy.taup
 import numpy as ny
 import sys
+import os
+import params
 from obspy.taup import TauPyModel
 from obspy.taup.taup_create import build_taup_model
-build_taup_model("mymodel.nd") 
+
+VelModel = params.VelModel
+build_taup_model(VelModel) 
 # when you prepare the model, please consider interpolating 
 # the velocity model above the majority of seismicity (e.g., a few km/layer)
 # so that VELEST (mode=0) can update it
 # TauP, velest, and hypoinverse don't like low velocity layers...
 model = TauPyModel(model="mymodel")
 
-dist=1.4 #dist range in deg.
-dep=20 #depth in km
+dist=params.Dist #dist range in deg.
+dep=params.Depth #depth in km
 
-ddist=0.01 #dist interval, be exactly divided by dist
-ddep=1 #depth interval, be exactly divided by dep
+ddist=params.dDist #dist interval, be exactly divided by dist
+ddep=params.dDepth #depth interval, be exactly divided by dep
 
 ndep=int(dep/ddep)+1
 ndist=int(dist/ddist)+1
 
-with open("ttdb.txt", "w") as f:
+ofn = os.path.join(params.AssocDir,'ttdb.txt')
+with open(ofn, "w") as f:
     #f.write("dist dep tp ts tp_slowness ts_slowness tp_hslowness ts_hslowness p_elvecorr s_elvecorr\n")
     for idep in range(0,ndep,1): # in depth
         for idist in range(1,ndist,1): # in horizontal

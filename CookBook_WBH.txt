@@ -6,7 +6,8 @@ wbythewood@gmail.com
 #### INSTALL
 1. cd to src directory, run
 	> python software_download.py
-This downloads FDTCC, GrowClust, MatchLocate2, Phasenet, REAL. I did not have to make any changes to this code.
+This downloads FDTCC, GrowClust, MatchLocate2, Phasenet, REAL. I did not have to 
+make any changes to this code.
 
 2. download Hypoinverse from https://www.usgs.gov/software/hypoinverse-earthquake-location. 
 This downloads hyp1.40.tar. Untar it. 
@@ -14,9 +15,11 @@ This downloads hyp1.40.tar. Untar it.
 3. I don't have wget, so I had to download hypodd separately: http://www.ldeo.columbia.edu/~felixw/HYPODD/HYPODD_1.3.tar.gz
 This downloads hypodd1.3.tar. Untar it. 
 
-4. Go into each of these directories to compile the codes. If you don't have gcc-9, download it. I used
+4. Go into each of these directories to compile the codes. If you don't have 
+gcc-9, download it. I used
 	> brew install gcc@9
-I also had to add the following to my .zshrc file, though I don't recall exactly why:
+I also had to add the following to my .zshrc file, though I don't recall 
+exactly why:
 export SDKROOT=`xcrun --show-sdk-path`
 
 	FDTCC/src
@@ -26,7 +29,8 @@ export SDKROOT=`xcrun --show-sdk-path`
 		make had no issues here
 
 	HYPODD/src
-		I don't have g77 or f77, so have replaced them with gfortran in the following places:
+		I don't have g77 or f77, so have replaced them with gfortran 
+		in the following places:
 		hista2ddsta/Makefile
 		hypoDD/Makefile
 		ncsn2pha/Makefile
@@ -34,10 +38,12 @@ export SDKROOT=`xcrun --show-sdk-path`
 
 		In each of these Makefiles, I've commented out other FCs, and added:
 			FC = gfortran
-		This generates lots of warnings, but no errors when you go back to HYPODD/src and make.
+		This generates lots of warnings, but no errors when you go back 
+		to HYPODD/src and make.
 
 	MatchLocate2/src
-		There were issues with compiling. Solved by changing gcc-10 to gcc-9 in line 3 of Makefile
+		There were issues with compiling. Solved by changing gcc-10 to 
+		gcc-9 in line 3 of Makefile
 
 	Phasenet is all python, no compiling here.
 
@@ -58,25 +64,91 @@ export SDKROOT=`xcrun --show-sdk-path`
 5. back to the upper src directory, run
 	> bash run_install.sh
 
-6. change directory cd ../bin, pwd, then copy this directory and add it to your path in ~/.zshrc
+6. change directory cd ../bin, pwd, then copy this directory and add it to 
+your path in ~/.zshrc
 
 
 #### DOWNLOAD DATA
-1. change directory cd Scripts. The only thing you ought to need to modify here is params.py. 
+1. change directory cd Scripts. The only thing you ought to need to modify here 
+is params.py. 
    Set these parameters to what you want for your project. 
    Change name of BaseDir to the full path that leads to /LOC-FLOW
-   The label will be used as the project name; all downloaded data will be stored in Data/label.
+   The label will be used as the project name; all downloaded data will be 
+   stored in Data/label.
    All other parameters are explained in the comments in the param file. 
 
 2. run
 	> python 01a_waveform_download_mseed.py
 This downloads the seismic data you'll use. 
+	Inputs: none
+	Outputs: station_all.dat, waveform_sac/
 
 3. run
 	> python 02_phasenet_input.py
-This creates a station list for the following steps, as well as "prepares data inputs for PhaseNet to run."
+This creates a station list for the following steps, as well as "prepares data 
+inputs for PhaseNet to run."
+	Inputs:
+	Outputs: fname.csv, station.dat
 
 
 #### PHASE PICKER
+1. To pick P phases, run
+	> python 03a_trigger_p_amp.py
+	Outputs: Picks/yymmdd/nw.st.p.txt
+
+2. to pick S phases, run
+	> python 03b_trigger_s_amp.py
+	Outputs: Picks/yymmdd/nw.st.s.txt
+It is worth noting that these two codes do basically the same thing, but the 
+way they are structured is quite different.
+I have re-tooled each of them to look at the params file, and keep data and 
+derived analysis in a file structure that makes more sense.
+
+3. PhaseNet. This is complicated. 
+
+    My M1 chip won't allow tensorflow, which is needed for the next step in 
+    PhaseNet. After trying lots of different things, here is what I found 
+    works. It is maybe the sketchiest jerry-rig I've ever done. 
+
+    
+    https://stackoverflow.com/questions/65383338/zsh-illegal-hardware-instruction-python-when-installing-tensorflow-on-macbook
+    
+    Install pyenv in order to have multiple versions of python on your machine. 
+    Instructions are here:
+        https://realpython.com/intro-to-pyenv/
+    Use pyenv to install python version 3.8.5
+    Make 3.8.5 your default version. Check to make sure you are running 3.8.5 
+    with the command 
+    	> python -V
+    install virtualenv
+    	> pip install virtualenv
+    create a new virtual environment to use for this code
+    	> virtualenv ENV
+    activate that virtual environment
+    	> source ENV/bin/activate
+    install tensorflow wheel at this google drive link:
+    	https://drive.google.com/drive/folders/1oSipZLnoeQB0Awz8U68KYeCPsULy_dQ7
+    in whatever directory you've downloaded this file, install it:
+    	> pip install tensorflow-2.4.1-py3-none-any.whl
+    Tensorflow should now work. 
+    But it's possible a bunch of other packages are now broken. I've simply 
+    used pip to install 3.8.5 versions of these codes
+
+    ALSO this does not like large batches--I think that's what's going on. When 
+    I download PhaseNet as a stand-alone test run, the test data has 180 seconds 
+    of 3 components of 16 stations. Finding the picks works great. When I try it 
+    on my weeklong dataset with ~50 stations, it shut down my computer twice. 
+    Not sure why the third time finally ran... but there you have it. The error 
+    I got was something like: "UserWarning: resource_tracker: There appear to be 
+    1 leaked semaphore objects to clean up at shutdown". Searching this online 
+    doesn't produce great results. So maybe just try smaller batches?
+
+    Anyway, after setting up the virtual env, you'll need to make sure it's activated:
+    	> source ENV/bin/activate
+    before running the code:
+    	> python 04_runphasenet.py
 
 
+#### Association
+1. To generate a travel time table for REAL and FDTCC, enter:
+	> python 05_taup_tt.py

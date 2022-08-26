@@ -54,3 +54,10 @@ MaxLat = 38.2
 MinLon = -122.6
 MaxLon = -121.6
 #####################
+
+#####################
+# Parameters for association
+Dist = 1.4 # dist range in degrees
+dDist = 0.01 # distance interval, Dist should be exactly divisible by this
+Depth = 20 # depth in km
+dDepth = 1 # depth interval; Depth should be exactly divisible by this
