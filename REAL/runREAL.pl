@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-@ARGV == 1 || die "perl $0 STALTA:0 PhaseNet:1\n";
+#@ARGV == 1 || die "perl $0 STALTA:0 PhaseNet:1\n";
 $picker=$ARGV[0];
 chomp($picker);
 
@@ -31,10 +31,21 @@ chomp($picker);
 
 
 #startting date and number of days
-$year0 = "2016";
-$month0 = "10";
-$day0 = "14";
-$nday = "1";
+$year0 = $ARGV[1];
+$month0 = $ARGV[2];
+$day0 = $ARGV[3];
+$nday = $ARGV[4];
+#other args
+$latcenter = $ARGV[5];
+$roption = $ARGV[6];
+$goption = $ARGV[7];
+$voption = $ARGV[8];
+$soption = $ARGV[9];
+
+$picksdir = $ARGV[10];
+$datadir = $ARGV[11];
+$assocdir = $ARGV[12];
+
 
 $ID=0;
 $phaseSAall = "phaseSA_allday.txt";
@@ -52,28 +63,38 @@ for($i=0; $i<$nday; $i++){
 	$outfile ="$year$month$day";
 
     # -D(nyear/nmon/nday/lat_center)
-    $D = "$year/$month/$day/42.75";
+    $D = "$year/$month/$day/$latcenter";
     # -R(rx/rh/tdx/tdh/tint[/gap/GCarc0/latref0/lonref0]])
     #$R = "0.1/20/0.02/2/5"; # small gride size
-    $R = "0.1/20/0.04/2/5"; # large grid size
+    #$R = "0.1/20/0.04/2/5"; # large grid size
+    $R = $roption; 
     # -G(trx/trh/tdx/tdh)
-    $G = "1.4/20/0.01/1";
+    #$G = "1.4/20/0.01/1";
+    $G = $goption;
     # -V(vp0/vs0/[s_vp0/s_vs0/ielev])
-    $V = "6.2/3.4";
+    #$V = "6.2/3.4";
+    $V = $voption;
     # -S(np0/ns0/nps0/npsboth0/std0/dtps/nrt/[drt/nxd/rsel/ires])
     #$S = "3/2/8/2/0.5/0.1/1.8/0.35"; # for small grid size
-    $S = "3/2/8/2/0.5/0.1/1.2/0.0"; # for large grid size
+    #$S = "3/2/8/2/0.5/0.1/1.2/0.0"; # for large grid size
+    $S = $soption;
     
     # thresholds may change with pickers, here for rough testing
-    if ($picker==0){
-        $dir = "../Pick/STALTA/$year$month$day"; # use STA/LTA picks
-    }elsif($picker==1){
-        $dir = "../Pick/PhaseNet/$year$month$day"; # use PhaseNet picks
-    }else{
-        printf STDERR "please choose 0: STALTA or 1: PhaseNet";
-    }
-    $station = "../Data/station.dat";
-    $ttime = "./tt_db/ttdb.txt";
+    #if ($picker==0){
+    #    $dir = "$picksdir/STALTA/$year$month$day"; # use STA/LTA picks
+    #}elsif($picker==1){
+    #    $dir = "$picksdir/PhaseNet/$year$month$day"; # use PhaseNet picks
+    #}else{
+    #    printf STDERR "please choose 0: STALTA or 1: PhaseNet";
+    #}
+    # wbh edit -- the correct picks dir should be supplied already by the python wrapper
+    $dir = "$picksdir/$year$month$day";
+
+    #$station = "../Data/station.dat";
+    $station = "$datadir/station.dat";
+    #$ttime = "./tt_db/ttdb.txt";
+    $ttime = "$assocdir/ttdb.txt";
+    print"$ttime\n\n";
 
     system("REAL -D$D -R$R -S$S -G$G -V$V $station $dir $ttime");
     print"REAL -D$D -R$R -S$S -G$G -V$V $station $dir $ttime\n";
